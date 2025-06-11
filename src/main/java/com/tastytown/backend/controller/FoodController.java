@@ -39,4 +39,4 @@ public class FoodController {
         FoodRequestDTO foodRequestDTO = objectMapper.readValue(json, FoodRequestDTO.class);
         return new ResponseEntity<>(foodService.createFood(foodRequestDTO, foodImage), HttpStatus.CREATED);
     } 
-}
+}  

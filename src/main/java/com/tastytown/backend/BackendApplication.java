@@ -27,5 +27,5 @@ public class BackendApplication {
 			}
 			System.out.println("Folder already exists to store food images");
 		};
-	}    
+	}      
 }
