@@ -2,6 +2,7 @@ package com.tastytown.backend.controller;
 
 import java.io.IOException;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,9 +24,20 @@ public class ImageController {
     private final IImageService imageService;
 
     @GetMapping("/{fileName}")
-    @ApiResponse(responseCode = "200" , description = "List of all FoodImage with image name")
+    @ApiResponse(responseCode = "200", description = "List of all FoodImage with image name")
     @Operation(summary = "Get a image")
     public ResponseEntity<byte[]> serveImage(@PathVariable String fileName) throws IOException {
-        return imageService.extractFoodImages(fileName);
+        byte[] image = imageService.extractFoodImages(fileName);
+
+        var contentType = "";
+        var lowerFoodImageName = fileName.toLowerCase();
+        if (lowerFoodImageName.endsWith(".jpg") || lowerFoodImageName.endsWith(".jpeg")) {
+            contentType = MediaType.IMAGE_JPEG_VALUE;
+        } else if (lowerFoodImageName.endsWith(".png")) {
+            contentType = MediaType.IMAGE_PNG_VALUE;
+        }
+        return ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType(contentType))
+                        .body(image);
     }
 }

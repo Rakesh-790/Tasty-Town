@@ -19,7 +19,7 @@ public class ImageServiceImpl implements IImageService {
     private String FILE_DIR;
 
     @Override
-    public ResponseEntity<byte[]> extractFoodImages(String foodImageName) throws IOException {
+    public byte[] extractFoodImages(String foodImageName) throws IOException {
         if (foodImageName == null || foodImageName.isEmpty()) {
             throw new NoSuchElementException("Image Name not found");
         }
@@ -32,13 +32,7 @@ public class ImageServiceImpl implements IImageService {
         byte[] image = fis.readAllBytes();
         fis.close();
 
-        var contentType = "";
-        var lowerFoodImageName = foodImageName.toLowerCase();
-        if (foodImageName.endsWith(".jpg") || lowerFoodImageName.endsWith(".jpeg")) {
-            contentType = MediaType.IMAGE_JPEG_VALUE;
-        }else if (lowerFoodImageName.endsWith(".png")) {
-            contentType = MediaType.IMAGE_PNG_VALUE;
-        }
-        return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType)).body(image);
+        
+        return image;
     }
 }

@@ -11,9 +11,9 @@ import com.tastytown.backend.dto.FoodResponseDTO;
 
 public interface IFoodService {
     FoodResponseDTO createFood(FoodRequestDTO foodRequestDTO, MultipartFile file) throws IOException;
-    ResponseEntity<List<FoodResponseDTO>> getAllFoods();
+    List<FoodResponseDTO> getAllFoods();
 
-    ResponseEntity<FoodResponseDTO> getFoodById(String foodId);
+    FoodResponseDTO getFoodById(String foodId);
 
     // ResponseEntity<FoodResponseDTO> updateFood(String foodId, FoodRequestDTO foodRequestDTO) ;
 

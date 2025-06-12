@@ -40,15 +40,15 @@ public class FoodController {
     @ApiResponse(description = "all food details extract successfully")
     @Operation(summary = "Get all food details")
     public ResponseEntity<List<FoodResponseDTO>> getAllFoods() {
-    return foodService.getAllFoods();
+    return ResponseEntity.ok( foodService.getAllFoods());
     }
 
     @GetMapping("/{foodId}")
     @ApiResponse(description = "food retrieved successfully by ID")
     @Operation(summary = "Get a food by ID")
     public ResponseEntity<FoodResponseDTO> getFoodById(@PathVariable String foodId) {
-        var food = foodService.getFoodById(foodId);
-        return food;
+        return ResponseEntity.ok( foodService.getFoodById(foodId));
+        
     }
 
     // @PutMapping("/{foodId}")
@@ -60,7 +60,7 @@ public class FoodController {
     //     return new ResponseEntity<FoodResponseDTO>(updatedFood, HttpStatus.OK);
     // }
 
-    @DeleteMapping("{foodId}")
+    @DeleteMapping("/{foodId}")
     @ApiResponse(description = "deleted successfully")
     @Operation(summary = "Delete a food by Id")
     public ResponseEntity<Void> deleteFood(@PathVariable String foodId) {

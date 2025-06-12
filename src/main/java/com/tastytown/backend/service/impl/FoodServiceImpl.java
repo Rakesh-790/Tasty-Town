@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -48,6 +49,40 @@ public class FoodServiceImpl implements IFoodService {
         return FoodMapper.convertToDTO(savedFood);
     }
 
+    private String generateFileName(String fileName) {
+        var extensionName = fileName.substring(fileName.lastIndexOf("."));
+        var newFileName = UUID.randomUUID().toString();
+        return newFileName + extensionName;
+    }
+
+    @Override
+    public List<FoodResponseDTO> getAllFoods() {
+        var food = foodRepository.findAll();
+        // return food.stream().map(foodItem -> FoodMapper.convertToDTO(foodItem)).toList();
+        return food.stream().map(FoodMapper :: convertToDTO).toList();
+    }
+
+    @Override
+    public FoodResponseDTO getFoodById(String foodId) {
+        var food = foodRepository.findById(foodId)
+                .orElseThrow(() -> new NoSuchElementException("Food not found with id: " + foodId));
+        return FoodMapper.convertToDTO(food);
+    }
+
+    // @Override
+    // public ResponseEntity<FoodResponseDTO> updateFood(String foodId, FoodRequestDTO foodRequestDTO) {
+    //     var existingFood = getFoodById(foodId);
+    //     var updatedFood = existingFood.getBody();
+            
+    //     }
+    // }
+
+    @Override
+    public void deleteFood(String foodId) {
+        getFoodById(foodId);
+        foodRepository.deleteById(foodId);
+    }
+
     private String uploadFile(MultipartFile foodImage) throws IOException {
         if (!foodImage.isEmpty()) {
             var fileName = foodImage.getOriginalFilename();// it extracts the file name (including extension)
@@ -59,41 +94,5 @@ public class FoodServiceImpl implements IFoodService {
             return newFileName;
         }
         throw new FileNotFoundException("File is empty. Food Image is not uploaded");
-    }
-
-    private String generateFileName(String fileName) {
-        var extensionName = fileName.substring(fileName.lastIndexOf("."));
-        var newFileName = UUID.randomUUID().toString();
-        return newFileName + extensionName;
-    }
-
-    @Override
-    public ResponseEntity<List<FoodResponseDTO>> getAllFoods() {
-        var food = foodRepository.findAll();
-        return new ResponseEntity<>(
-                food.stream().map(foodItem -> FoodMapper.convertToDTO(foodItem)).collect(Collectors.toList()),
-                HttpStatus.OK);
-    }
-
-    @Override
-    public ResponseEntity<FoodResponseDTO> getFoodById(String foodId) {
-        var food = foodRepository.findById(foodId)
-                .orElseThrow(() -> new CatagoryNotFoundException("Catagory not found with id: " + foodId));
-        return new ResponseEntity<>(FoodMapper.convertToDTO(food), HttpStatus.OK);
-    }
-
-    // @Override
-    // public ResponseEntity<FoodResponseDTO> updateFood(String foodId, FoodRequestDTO foodRequestDTO) {
-    //     var existingFood = getFoodById(foodId);
-    //     var updatedFood = existingFood.getBody();
-    //     for(String foods : updatedFood){
-            
-    //     }
-    // }
-
-    @Override
-    public void deleteFood(String foodId) {
-        getFoodById(foodId);
-        foodRepository.deleteById(foodId);
     }
 }
