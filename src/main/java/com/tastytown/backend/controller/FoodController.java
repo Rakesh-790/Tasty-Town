@@ -1,10 +1,15 @@
 package com.tastytown.backend.controller;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 // import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 // import org.springframework.web.bind.annotation.RequestParam;
@@ -12,13 +17,13 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tastytown.backend.dto.FoodRequestDTO;
 import com.tastytown.backend.dto.FoodResponseDTO;
 import com.tastytown.backend.service.IFoodService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -31,12 +36,45 @@ public class FoodController {
     private final IFoodService foodService;
     private final ObjectMapper objectMapper;
 
+    @GetMapping
+    @ApiResponse(description = "all food details extract successfully")
+    @Operation(summary = "Get all food details")
+    public ResponseEntity<List<FoodResponseDTO>> getAllFoods() {
+    return foodService.getAllFoods();
+    }
+
+    @GetMapping("/{foodId}")
+    @ApiResponse(description = "food retrieved successfully by ID")
+    @Operation(summary = "Get a food by ID")
+    public ResponseEntity<FoodResponseDTO> getFoodById(@PathVariable String foodId) {
+        var food = foodService.getFoodById(foodId);
+        return food;
+    }
+
+    // @PutMapping("/{foodId}")
+    // @ApiResponse(description = "food update successfully")
+    // @Operation(summary = "Update a food by Id")
+    // public ResponseEntity<FoodResponseDTO> updateFood(@PathVariable String foodId,
+    //         @RequestBody FoodRequestDTO foodRequestDTO) {
+    //     var updatedFood = foodService.updateFood(foodId, foodRequestDTO);
+    //     return new ResponseEntity<FoodResponseDTO>(updatedFood, HttpStatus.OK);
+    // }
+
+    @DeleteMapping("{foodId}")
+    @ApiResponse(description = "deleted successfully")
+    @Operation(summary = "Delete a food by Id")
+    public ResponseEntity<Void> deleteFood(@PathVariable String foodId) {
+        foodService.deleteFood(foodId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping
-    @ApiResponse(description = "List of all catagories")
-    @Operation(summary = "Get all catagories")
+    @ApiResponse(description = "extracted the image successfully")
+    @Operation(summary = "Get the Image")
     public ResponseEntity<FoodResponseDTO> saveFood(@RequestPart String json,
-            @RequestPart MultipartFile foodImage) throws IOException{
+            @RequestPart MultipartFile foodImage) throws IOException {
         FoodRequestDTO foodRequestDTO = objectMapper.readValue(json, FoodRequestDTO.class);
-        return new ResponseEntity<>(foodService.createFood(foodRequestDTO, foodImage), HttpStatus.CREATED);
-    } 
-}  
+        FoodResponseDTO foodResponseDTO = foodService.createFood(foodRequestDTO, foodImage);
+        return new ResponseEntity<FoodResponseDTO>(foodResponseDTO, HttpStatus.CREATED);
+    }
+}

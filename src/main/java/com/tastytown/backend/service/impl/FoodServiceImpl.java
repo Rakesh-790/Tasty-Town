@@ -4,12 +4,18 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.tastytown.backend.dto.FoodRequestDTO;
 import com.tastytown.backend.dto.FoodResponseDTO;
+import com.tastytown.backend.exception.CatagoryNotFoundException;
 // import com.tastytown.backend.entity.Food;
 import com.tastytown.backend.mapper.FoodMapper;
 // import com.tastytown.backend.repository.CatagoryRepository;
@@ -59,5 +65,35 @@ public class FoodServiceImpl implements IFoodService {
         var extensionName = fileName.substring(fileName.lastIndexOf("."));
         var newFileName = UUID.randomUUID().toString();
         return newFileName + extensionName;
+    }
+
+    @Override
+    public ResponseEntity<List<FoodResponseDTO>> getAllFoods() {
+        var food = foodRepository.findAll();
+        return new ResponseEntity<>(
+                food.stream().map(foodItem -> FoodMapper.convertToDTO(foodItem)).collect(Collectors.toList()),
+                HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<FoodResponseDTO> getFoodById(String foodId) {
+        var food = foodRepository.findById(foodId)
+                .orElseThrow(() -> new CatagoryNotFoundException("Catagory not found with id: " + foodId));
+        return new ResponseEntity<>(FoodMapper.convertToDTO(food), HttpStatus.OK);
+    }
+
+    // @Override
+    // public ResponseEntity<FoodResponseDTO> updateFood(String foodId, FoodRequestDTO foodRequestDTO) {
+    //     var existingFood = getFoodById(foodId);
+    //     var updatedFood = existingFood.getBody();
+    //     for(String foods : updatedFood){
+            
+    //     }
+    // }
+
+    @Override
+    public void deleteFood(String foodId) {
+        getFoodById(foodId);
+        foodRepository.deleteById(foodId);
     }
 }
