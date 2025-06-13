@@ -3,7 +3,8 @@ package com.tastytown.backend.service;
 import java.io.IOException;
 import java.util.List;
 
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+// import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.tastytown.backend.dto.FoodRequestDTO;
@@ -18,4 +19,6 @@ public interface IFoodService {
     // ResponseEntity<FoodResponseDTO> updateFood(String foodId, FoodRequestDTO foodRequestDTO) ;
 
     void deleteFood(String foodId);
+
+    Page<FoodResponseDTO> getPaginatedFoods(int pageNumber, int pageSize, String catagoryId, String search);
 } 

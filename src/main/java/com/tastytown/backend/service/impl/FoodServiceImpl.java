@@ -10,12 +10,16 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.tastytown.backend.dto.FoodRequestDTO;
 import com.tastytown.backend.dto.FoodResponseDTO;
+import com.tastytown.backend.entity.Food;
 import com.tastytown.backend.exception.CatagoryNotFoundException;
 // import com.tastytown.backend.entity.Food;
 import com.tastytown.backend.mapper.FoodMapper;
@@ -58,8 +62,9 @@ public class FoodServiceImpl implements IFoodService {
     @Override
     public List<FoodResponseDTO> getAllFoods() {
         var food = foodRepository.findAll();
-        // return food.stream().map(foodItem -> FoodMapper.convertToDTO(foodItem)).toList();
-        return food.stream().map(FoodMapper :: convertToDTO).toList();
+        // return food.stream().map(foodItem ->
+        // FoodMapper.convertToDTO(foodItem)).toList();
+        return food.stream().map(FoodMapper::convertToDTO).toList();
     }
 
     @Override
@@ -70,17 +75,37 @@ public class FoodServiceImpl implements IFoodService {
     }
 
     // @Override
-    // public ResponseEntity<FoodResponseDTO> updateFood(String foodId, FoodRequestDTO foodRequestDTO) {
-    //     var existingFood = getFoodById(foodId);
-    //     var updatedFood = existingFood.getBody();
-            
-    //     }
+    // public ResponseEntity<FoodResponseDTO> updateFood(String foodId,
+    // FoodRequestDTO foodRequestDTO) {
+    // var existingFood = getFoodById(foodId);
+    // var updatedFood = existingFood.getBody();
+
+    // }
     // }
 
     @Override
     public void deleteFood(String foodId) {
         getFoodById(foodId);
         foodRepository.deleteById(foodId);
+    }
+
+    @Override
+    public Page<FoodResponseDTO> getPaginatedFoods(int pageNumber, int pageSize, String catagoryId, String search) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        // filternation
+        Page<Food> foodPage;
+        if (catagoryId != null && !catagoryId.equals("all") && !search.equals("all")) {
+            foodPage = foodRepository.findByCatagory_CatagoryIdAndFoodNameContainingIgnoreCase(catagoryId,search, pageable);
+        } else if(!catagoryId.equals("all") ) {
+            foodPage = foodRepository.findByCatagory_CatagoryId(catagoryId, pageable);
+        }else if(!search.equals("all")){
+            foodPage = foodRepository.findByFoodNameContainingIgnoreCase(search, pageable);
+        }
+        else {
+            foodPage = foodRepository.findAll(pageable);
+        }
+        return foodPage.map(FoodMapper::convertToDTO);
     }
 
     private String uploadFile(MultipartFile foodImage) throws IOException {
@@ -95,4 +120,5 @@ public class FoodServiceImpl implements IFoodService {
         }
         throw new FileNotFoundException("File is empty. Food Image is not uploaded");
     }
+
 }
