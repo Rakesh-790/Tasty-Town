@@ -16,9 +16,9 @@ public interface IFoodService {
 
     FoodResponseDTO getFoodById(String foodId);
 
-    // ResponseEntity<FoodResponseDTO> updateFood(String foodId, FoodRequestDTO foodRequestDTO) ;
+    FoodResponseDTO updateFood(String foodId, FoodRequestDTO dto, MultipartFile foodImage) throws IOException;
 
-    void deleteFood(String foodId);
+    FoodResponseDTO deleteFood(String foodId)throws IOException;
 
     Page<FoodResponseDTO> getPaginatedFoods(int pageNumber, int pageSize, String catagoryId, String search);
 } 

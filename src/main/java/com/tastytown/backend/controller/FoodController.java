@@ -25,7 +25,6 @@ import com.tastytown.backend.dto.FoodResponseDTO;
 import com.tastytown.backend.service.IFoodService;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -53,22 +52,20 @@ public class FoodController {
 
     }
 
-    // @PutMapping("/{foodId}")
-    // @ApiResponse(description = "food update successfully")
-    // @Operation(summary = "Update a food by Id")
-    // public ResponseEntity<FoodResponseDTO> updateFood(@PathVariable String
-    // foodId,
-    // @RequestBody FoodRequestDTO foodRequestDTO) {
-    // var updatedFood = foodService.updateFood(foodId, foodRequestDTO);
-    // return new ResponseEntity<FoodResponseDTO>(updatedFood, HttpStatus.OK);
-    // }
+    @PutMapping("/{foodId}")
+    @ApiResponse(description = "food update successfully")
+    @Operation(summary = "Update a food by Id")
+    public ResponseEntity<FoodResponseDTO> updateFood(@PathVariable String foodId, @RequestPart String json,
+             @RequestPart(required = false) MultipartFile foodImage) throws IOException{
+        FoodRequestDTO dto = objectMapper.readValue(json, FoodRequestDTO.class);
+        return ResponseEntity.ok(foodService.updateFood(foodId, dto, foodImage));
+    }
 
     @DeleteMapping("/{foodId}")
     @ApiResponse(description = "deleted successfully")
     @Operation(summary = "Delete a food by Id")
-    public ResponseEntity<Void> deleteFood(@PathVariable String foodId) {
-        foodService.deleteFood(foodId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<FoodResponseDTO> deleteFood(@PathVariable String foodId) throws IOException{
+        return new ResponseEntity<>(foodService.deleteFood(foodId), HttpStatus.ACCEPTED);
     }
 
     @PostMapping

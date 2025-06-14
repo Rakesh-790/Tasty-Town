@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.tastytown.backend.service.IImageService;
@@ -32,7 +30,6 @@ public class ImageServiceImpl implements IImageService {
         byte[] image = fis.readAllBytes();
         fis.close();
 
-        
         return image;
     }
 }

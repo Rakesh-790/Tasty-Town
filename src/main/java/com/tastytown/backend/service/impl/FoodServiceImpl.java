@@ -7,20 +7,16 @@ import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.tastytown.backend.dto.FoodRequestDTO;
 import com.tastytown.backend.dto.FoodResponseDTO;
 import com.tastytown.backend.entity.Food;
-import com.tastytown.backend.exception.CatagoryNotFoundException;
 // import com.tastytown.backend.entity.Food;
 import com.tastytown.backend.mapper.FoodMapper;
 // import com.tastytown.backend.repository.CatagoryRepository;
@@ -74,19 +70,45 @@ public class FoodServiceImpl implements IFoodService {
         return FoodMapper.convertToDTO(food);
     }
 
-    // @Override
-    // public ResponseEntity<FoodResponseDTO> updateFood(String foodId,
-    // FoodRequestDTO foodRequestDTO) {
-    // var existingFood = getFoodById(foodId);
-    // var updatedFood = existingFood.getBody();
+    @Override
+    public FoodResponseDTO updateFood(String foodId,
+            FoodRequestDTO dto, MultipartFile foodImage) throws IOException {
+        var existingFood = foodRepository.findById(foodId)
+                .orElseThrow(() -> new NoSuchElementException("Food not found with id: " + foodId));
+        var catagory = catagoryService.getCatagoryById(dto.catagroyId());
+        existingFood.setFoodName(dto.foodName());
+        existingFood.setFoodPrice(dto.foodPrice());
+        existingFood.setFoodDescription(dto.foodDescription());
 
-    // }
-    // }
+        if (foodImage != null && !foodImage.isEmpty()) {
+            deleteFoodImage(existingFood.getFoodImage());
+            var newFoodImageName = uploadFile(foodImage);
+            existingFood.setFoodImage(newFoodImageName);
+            if (dto.catagroyId() != null && !dto.catagroyId().isEmpty()) {
+                var catagories = catagoryService.getCatagoryById(dto.catagroyId());
+                existingFood.setCatagory(catagories);
+            }
+        }
+        var savedFood = foodRepository.save(existingFood);
+        return FoodMapper.convertToDTO(savedFood);
+    }
 
     @Override
-    public void deleteFood(String foodId) {
-        getFoodById(foodId);
+    public FoodResponseDTO deleteFood(String foodId) throws IOException {
+        var food = foodRepository.findById(foodId)
+                .orElseThrow(() -> new NoSuchElementException("Food not found with id: " + foodId));
+        deleteFoodImage(food.getFoodImage());
         foodRepository.deleteById(foodId);
+        return FoodMapper.convertToDTO(food);
+
+    }
+
+    private void deleteFoodImage(String foodImageName) throws IOException {
+        var file = new File(FILE_DIR + File.separator + foodImageName);
+        if (!file.exists()) {
+            throw new FileNotFoundException("Food Image not found with name" + foodImageName);
+        }
+        file.delete();
     }
 
     @Override
@@ -96,13 +118,13 @@ public class FoodServiceImpl implements IFoodService {
         // filternation
         Page<Food> foodPage;
         if (catagoryId != null && !catagoryId.equals("all") && !search.equals("all")) {
-            foodPage = foodRepository.findByCatagory_CatagoryIdAndFoodNameContainingIgnoreCase(catagoryId,search, pageable);
-        } else if(!catagoryId.equals("all") ) {
+            foodPage = foodRepository.findByCatagory_CatagoryIdAndFoodNameContainingIgnoreCase(catagoryId, search,
+                    pageable);
+        } else if (!catagoryId.equals("all")) {
             foodPage = foodRepository.findByCatagory_CatagoryId(catagoryId, pageable);
-        }else if(!search.equals("all")){
+        } else if (!search.equals("all")) {
             foodPage = foodRepository.findByFoodNameContainingIgnoreCase(search, pageable);
-        }
-        else {
+        } else {
             foodPage = foodRepository.findAll(pageable);
         }
         return foodPage.map(FoodMapper::convertToDTO);
