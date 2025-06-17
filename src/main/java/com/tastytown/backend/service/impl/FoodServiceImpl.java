@@ -75,7 +75,7 @@ public class FoodServiceImpl implements IFoodService {
             FoodRequestDTO dto, MultipartFile foodImage) throws IOException {
         var existingFood = foodRepository.findById(foodId)
                 .orElseThrow(() -> new NoSuchElementException("Food not found with id: " + foodId));
-        var catagory = catagoryService.getCatagoryById(dto.catagroyId());
+        // var catagory = catagoryService.getCatagoryById(dto.catagroyId());
         existingFood.setFoodName(dto.foodName());
         existingFood.setFoodPrice(dto.foodPrice());
         existingFood.setFoodDescription(dto.foodDescription());
