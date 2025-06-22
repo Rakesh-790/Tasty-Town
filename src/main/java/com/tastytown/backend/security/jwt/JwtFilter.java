@@ -53,7 +53,7 @@ public class JwtFilter extends OncePerRequestFilter{
                 //store the authentication Object inside the Security Context
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-
+            request.setAttribute("userId", userId);
             filterChain.doFilter(request, response); 
         } catch (Exception e) {
             var problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
