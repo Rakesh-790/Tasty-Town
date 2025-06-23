@@ -9,4 +9,5 @@ import com.tastytown.backend.entity.User;
 
 public interface CartRepository extends JpaRepository<Cart, String>{
     Optional<Cart> findByUser(User user);
+    void deleteByUser(User user);
 }

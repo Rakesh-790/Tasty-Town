@@ -1,5 +1,6 @@
 package com.tastytown.backend.service.impl;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -8,6 +9,8 @@ import com.tastytown.backend.dto.CartItemRequestDTO;
 import com.tastytown.backend.dto.CartResponseDTO;
 import com.tastytown.backend.entity.Cart;
 import com.tastytown.backend.entity.CartItem;
+import com.tastytown.backend.entity.Food;
+import com.tastytown.backend.entity.User;
 import com.tastytown.backend.mapper.CartMapper;
 import com.tastytown.backend.repository.CartRepository;
 import com.tastytown.backend.repository.FoodRepository;
@@ -25,15 +28,11 @@ public class CartServiceImpl implements ICartService {
 
     @Override
     public CartResponseDTO addItemToCart(String userId, CartItemRequestDTO cartItemRequestDTO) {
-        var user = userRepository.findById(userId).orElseThrow();
+        var user = getUserById(userId);
 
-        var cart = cartRepository.findByUser(user).orElseGet(
-                () -> {
-                    var newCart = Cart.builder().user(user).build();
-                    return cartRepository.save(newCart);
-                });
+        var cart = getOrCreateCartForUser(user);
 
-        var food = foodRepository.findById(cartItemRequestDTO.foodId()).orElseThrow();
+        var food = getFoodById(cartItemRequestDTO.foodId());
 
         // check if item already exists in the cart
         Optional<CartItem> exitstingCartItemOpt = cart.getItems().stream()
@@ -56,10 +55,12 @@ public class CartServiceImpl implements ICartService {
         return CartMapper.convertToCartResponseDTO(savedCart);
     }
 
-    // @Override
-    // public CartResponseDTO getCartByUserId(String userId) {
-
-    // }
+    @Override
+    public CartResponseDTO getCartByUserId(String userId) {
+        var user = getUserById(userId);
+        var cartOfUser = getOrCreateCartForUser(user);
+        return CartMapper.convertToCartResponseDTO(cartOfUser);
+    }
 
     // @Override
     // public CartResponseDTO updateItemQuantity(String userId, CartItemRequestDTO
@@ -72,9 +73,27 @@ public class CartServiceImpl implements ICartService {
 
     // }
 
-    // @Override
-    // public CartResponseDTO clearCartItem(String userId) {
+    @Override
+    public void clearCartItem(String userId) {
+        var user = getUserById(userId);
+        cartRepository.deleteByUser(user);
+    }
 
-    // }
+    private User getUserById(String userId){
+        return userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("user not found with id" + userId));
+    }
 
+    private Cart getOrCreateCartForUser(User user){
+       return cartRepository.findByUser(user).orElseGet(
+                () -> {
+                    var newCart = new Cart();
+                    newCart.setUser(user);
+                    return cartRepository.save(newCart);
+                }
+            );
+    }
+
+    private Food getFoodById(String foodId){
+        return foodRepository.findById(foodId).orElseThrow(() -> new NoSuchElementException("food not found by id" + foodId));
+    }
 }
