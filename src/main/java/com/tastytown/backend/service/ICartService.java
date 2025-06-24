@@ -8,9 +8,9 @@ public interface ICartService {
 
     CartResponseDTO getCartByUserId(String userId);
 
-    // CartResponseDTO updateItemQuantity(String userId, CartItemRequestDTO cartItemRequestDTO);
+    CartResponseDTO updateItemQuantity(String userId, CartItemRequestDTO cartItemRequestDTO);
 
-    // CartResponseDTO removeItemFromCart(String userId, String foodId);
+    CartResponseDTO removeItemFromCart(String userId, String foodId);
 
     void clearCartItem(String userId);
 }

@@ -62,38 +62,63 @@ public class CartServiceImpl implements ICartService {
         return CartMapper.convertToCartResponseDTO(cartOfUser);
     }
 
-    // @Override
-    // public CartResponseDTO updateItemQuantity(String userId, CartItemRequestDTO
-    // cartItemRequestDTO) {
+    @Override
+    public CartResponseDTO updateItemQuantity(String userId, CartItemRequestDTO cartItemRequestDTO) {
 
-    // }
+        var user = getUserById(userId);
+        var cart = getOrCreateCartForUser(user);
 
-    // @Override
-    // public CartResponseDTO removeItemFromCart(String userId, String foodId) {
+        var cartItem = getMatchedCartItemOfAnUser(cart, cartItemRequestDTO.foodId());
 
-    // }
+        if (cartItemRequestDTO.quantity() <= 0) {
+            cart.getItems().remove(cartItem);
+        } else {
+            cartItem.setQuantity(cartItemRequestDTO.quantity());
+        }
+        var savedCart = cartRepository.save(cart);
+        return CartMapper.convertToCartResponseDTO(savedCart);
+    }
 
     @Override
-    public void clearCartItem(String userId) {
+    public CartResponseDTO removeItemFromCart(String userId, String foodId) {
+        var user = getUserById(userId);
+        var cart = getOrCreateCartForUser(user);
+        var cartItem = getMatchedCartItemOfAnUser(cart, foodId);
+
+        cart.getItems().remove(cartItem);
+        
+        var savedCart = cartRepository.save(cart);
+        return CartMapper.convertToCartResponseDTO(savedCart);
+    }
+
+    @Override
+    public void clearCartItem(String userId) { // clear the cart item after the order.
         var user = getUserById(userId);
         cartRepository.deleteByUser(user);
     }
 
-    private User getUserById(String userId){
-        return userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("user not found with id" + userId));
+    private User getUserById(String userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("user not found with id" + userId));
     }
 
-    private Cart getOrCreateCartForUser(User user){
-       return cartRepository.findByUser(user).orElseGet(
+    private Cart getOrCreateCartForUser(User user) {
+        return cartRepository.findByUser(user).orElseGet(
                 () -> {
                     var newCart = new Cart();
                     newCart.setUser(user);
                     return cartRepository.save(newCart);
-                }
-            );
+                });
     }
 
-    private Food getFoodById(String foodId){
-        return foodRepository.findById(foodId).orElseThrow(() -> new NoSuchElementException("food not found by id" + foodId));
+    private Food getFoodById(String foodId) {
+        return foodRepository.findById(foodId)
+                .orElseThrow(() -> new NoSuchElementException("food not found by id" + foodId));
+    }
+
+    private CartItem getMatchedCartItemOfAnUser(Cart cart, String foodId) {
+        return cart.getItems().stream()
+                .filter(item -> item.getFood().getFoodId().equals(foodId)).findFirst()
+                .orElseThrow(() -> new NoSuchElementException("Food not found in the Cart"));
     }
 }

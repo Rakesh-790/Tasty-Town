@@ -27,7 +27,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/catagories")
-@ApiResponse(responseCode = "201", description = "Catagory created successfully")
 @Tag(name = "Catagory Api", description = "This Controller Manages CRUD operations for Catagory Entity")
 public class CatagoryController {
     private final ICatagoryService catagoryService;
