@@ -70,7 +70,7 @@ public class FoodController {
 
     @PostMapping
     @ApiResponse(description = "extracted the image successfully")
-    @Operation(summary = "Get all the details of the food and Image")
+    @Operation(summary = "create details of the food and Image")
     public ResponseEntity<FoodResponseDTO> saveFood(@RequestPart String json,
             @RequestPart MultipartFile foodImage) throws IOException {
         FoodRequestDTO foodRequestDTO = objectMapper.readValue(json, FoodRequestDTO.class);

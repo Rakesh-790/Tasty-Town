@@ -32,6 +32,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/foods/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/catagories/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/images/**").permitAll()
                 .requestMatchers("/api/v1/auth/**").permitAll()
 
                 .requestMatchers("/api/v1/cart/**").authenticated()
