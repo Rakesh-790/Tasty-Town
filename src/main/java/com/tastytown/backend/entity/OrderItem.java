@@ -24,8 +24,8 @@ public class OrderItem {
     @ManyToOne
     @JoinColumn(name = "order_id")
     private Order order;
-
+   
     private String foodName;
-    private String foodPrice;
+    private double foodPrice;
     private int quantity;
 }

@@ -1,5 +1,5 @@
 server:
-    port: 1300
+    port: 1200
     servlet:
         context-path: /tasty-town
 
@@ -8,15 +8,6 @@ spring:
         url: jdbc:mysql://localhost/tasty-town
         username: root
         password: Root
-
-    # profiles:
-    #     active: prod
-    
-    jpa:
-        hibernate:
-            ddl-auto: update
-
-        show-sql: true
 
 upload:
     file:
