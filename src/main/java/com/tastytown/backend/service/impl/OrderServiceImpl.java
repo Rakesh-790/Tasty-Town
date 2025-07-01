@@ -20,6 +20,7 @@ import com.tastytown.backend.entity.Order;
 import com.tastytown.backend.entity.OrderItem;
 import com.tastytown.backend.entity.User;
 import com.tastytown.backend.mapper.OrderMapper;
+import com.tastytown.backend.repository.CartRepository;
 import com.tastytown.backend.repository.OrderRepository;
 import com.tastytown.backend.service.IOrderService;
 import com.tastytown.backend.utils.OrderCodeGenerator;
@@ -32,6 +33,7 @@ public class OrderServiceImpl implements IOrderService {
     private final UserServiceHelper userServiceHelper;
     private final CartServiceHelper cartServiceHelper;
     private final OrderRepository orderRepository;
+    private final CartRepository cartRepository;
 
     @Value("${order.delivery.fee}")
     private double deliveryFee;
@@ -48,6 +50,8 @@ public class OrderServiceImpl implements IOrderService {
         }
 
         var order = createOrderFromCart(cart, info, user);
+        cart.getItems().clear();
+        cartRepository.save(cart);
         return OrderMapper.convertToOrderDTO(order);
     }
 
@@ -70,7 +74,7 @@ public class OrderServiceImpl implements IOrderService {
         var order = orderRepository.findByOrderCode(orderCode)
                 .orElseThrow(() -> new RuntimeException("Order not found with code " + orderCode));
         order.setOrderStatus(status);
-        var savedOrder =  orderRepository.save(order);
+        var savedOrder = orderRepository.save(order);
         return OrderMapper.convertToOrderDTO(savedOrder);
     }
 
